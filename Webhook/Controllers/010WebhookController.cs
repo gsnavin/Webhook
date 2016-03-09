@@ -116,6 +116,8 @@ namespace Webhook.Controllers
             //        file_put_contents($full_filename, base64_decode ( (string)$pdf->PDFBytes ));
             //    }
             //}
+
+            return Content("");
 	    }
 
         public ActionResult SendSignatureRequest()
