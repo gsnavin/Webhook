@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Webhook.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="docusignApiUsername" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">naveen.gopala@docusign.com</Value>
+    </Setting>
+    <Setting Name="docusignApiPassword" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">gopala</Value>
+    </Setting>
+    <Setting Name="docusignApiIntegratorKey" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">TEST-5913deaf-c9d9-4d6b-a8a0-2d7ca76db2f5</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
