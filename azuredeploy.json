@@ -93,8 +93,8 @@
                 "value": "[parameters('docusignApiPassword')]"
               },
               {
-                "name": "docusignApiIntegratoryKey",
-                "value": "[parameters('docusignApiIntegratoryKey')]"
+                "name": "docusignApiIntegratorKey",
+                "value": "[parameters('docusignApiIntegratorKey')]"
               }
             ]
           }
