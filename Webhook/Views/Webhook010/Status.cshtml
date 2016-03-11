@@ -30,11 +30,8 @@
     function GetStatusUpdate() {
         $.ajax({
             method: "POST",
-            url: "/Api/DocuSignApi",
+            url: '@Url.Action("StatusUpdate", "Webhook010")',
             data: { envelopeid: "@ViewBag.Envelope.EnvelopeId" }
-        })
-        .done(function (msg) {
-            alert("Data Saved: " + msg);
         });
     }
 </script>
