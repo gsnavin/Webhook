@@ -58,7 +58,7 @@ namespace Webhook.Controllers
             string ds_signer1_email = make_temp_email();
             string ds_cc1_name = get_fake_name();
             string ds_cc1_email = make_temp_email();
-            string webhook_url = "http://requestb.in/12y7ef41";//Request.Url.GetLeftPart(UriPartial.Authority) + "/webhook";
+            string webhook_url = Request.Url.GetLeftPart(UriPartial.Authority) + "/api/Webhook";
 
             if (accountId == null) {
                 return Content("[\"ok\" => false, \"html\" => \"<h3>Problem</h3><p>Couldn't login to DocuSign: \"]");
