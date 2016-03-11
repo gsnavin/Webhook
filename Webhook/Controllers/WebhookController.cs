@@ -16,10 +16,20 @@ namespace Webhook.Controllers
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(request.Content.ReadAsStreamAsync().Result);
-            XmlNodeList nodes = doc.DocumentElement.SelectNodes("/DocuSignEnvelopeInformation/EnvelopeStatus");
-            string envelopeId = nodes[0].SelectSingleNode("EnvelopeID").InnerText;
-
-            System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "_" + Guid.NewGuid() + ".xml"), doc.OuterXml);
+            XmlNodeList xnList = doc.SelectNodes("/DocuSignEnvelopeInformation/EnvelopeStatus");
+            if (xnList.Count > 0)
+            {
+                foreach (XmlNode xn in xnList)
+                {
+                    string envelopeId = xn["EnvelopeId"].InnerText;
+                    string status = xn["Status"].InnerText;
+                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "_" + status + ".xml"), doc.OuterXml);
+                }
+            }
+            else
+            {
+                System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + Guid.NewGuid() + ".xml"), doc.OuterXml);
+            }
         }
     }
 }
