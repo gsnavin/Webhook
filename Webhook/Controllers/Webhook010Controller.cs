@@ -13,8 +13,25 @@ using System.Xml;
 
 namespace Webhook.Controllers
 {
-    public class _010WebhookController : Controller
+    public class Webhook010Controller : Controller
     {
+        private string accountId;
+
+        private Configuration configuration = new Configuration(new ApiClient("https://demo.docusign.net/restapi"));
+
+        public Webhook010Controller()
+        {
+            string username = Environment.GetEnvironmentVariable("docusignApiUsername") ?? Properties.Settings.Default.docusignApiUsername;
+            string password = Environment.GetEnvironmentVariable("docusignApiPassword") ?? Properties.Settings.Default.docusignApiPassword;
+            string integratorKey = Environment.GetEnvironmentVariable("docusignApiIntegratorKey") ?? Properties.Settings.Default.docusignApiIntegratorKey;
+
+            string authHeader = "{\"Username\":\"" + username + "\", \"Password\":\"" + password + "\", \"IntegratorKey\":\"" + integratorKey + "\"}";
+
+            configuration.AddDefaultHeader("X-DocuSign-Authentication", authHeader);
+
+            accountId = GetAccountId();
+        }
+
         public ActionResult Index()
         {
             ViewBag.Message = "Home";
@@ -24,101 +41,16 @@ namespace Webhook.Controllers
 
         public ActionResult SendSignRequest()
         {
-            //string ds_signer1_name = get_fake_name();
-            //string ds_signer1_email = make_temp_email();
-            //string ds_cc1_name = get_fake_name();
-            //string ds_cc1_email = make_temp_email();
+           return View();
+        }
 
-            ////string webhook_url = Request.Url.Scheme + Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.Port != 80 && Request.Url.Port != 443 ? (":" + Request.Url.Port) : "") + "?op=webhook";
-            //string webhook_url = Request.Url.GetLeftPart(UriPartial.Authority) + "/status";
+        public ActionResult Status()
+        {
+            EnvelopesApi envelopesApi = new EnvelopesApi(configuration);
+            ViewBag.Envelope = envelopesApi.GetEnvelope(accountId, Request.QueryString["envelope_id"], null);
 
             return View();
         }
-
-        public ActionResult Webhook() {
-		    // Process the incoming webhook data. See the DocuSign Connect guide
-		    // for more information
-		    //
-		    // Strategy: examine the data to pull out the envelope_id and time_generated fields.
-		    // Then store the entire xml on our local file system using those fields.
-		    //
-		    // If the envelope status=="Completed" then store the files as doc1.pdf, doc2.pdf, etc
-		    //
-		    // This function could also enter the data into a dbms, add it to a queue, etc.
-		    // Note that the total processing time of this function must be less than
-		    // 100 seconds to ensure that DocuSign's request to your app doesn't time out.
-		    // Tip: aim for no more than a couple of seconds! Use a separate queuing service
-		    // if need be.
-	
-            //String strmContents;
-            
-            //Int32 strLen; //, strRead;
-            
-            // Create a Stream object.
-            System.IO.Stream str = Request.InputStream;
-            
-            // Find number of bytes in stream.
-            //strLen = Convert.ToInt32(str.Length);
-            
-            // Create a byte array.
-            byte[] strArr = new byte[str.Length];
-            
-            // Read stream into byte array.
-            //strRead = str.Read(strArr, 0, strLen);
-
-            XmlDocument doc = new XmlDocument();
-            doc.Load(str);
-            XmlNodeList nodes = doc.DocumentElement.SelectNodes("/DocuSignEnvelopeInformation/EnvelopeStatus");
-            string envelopeId = nodes[0].SelectSingleNode("EnvelopeID").InnerText;
-
-            System.IO.File.WriteAllBytes(Server.MapPath("~/Documents/"+envelopeId+".xml"), strArr);
-
-            //// Convert byte array to a text string.
-            //strmContents = "";
-            //for (counter = 0; counter < strLen; counter++)
-            //{
-            //    strmContents = strmContents + strArr[counter].ToString();            
-            //}
-
-
-
-
-            //data = file_get_contents('php://input');
-            //xml = simplexml_load_string ($data, "SimpleXMLElement", LIBXML_PARSEHUGE);
-            //envelope_id = (string)$xml->EnvelopeStatus->EnvelopeID;
-            //time_generated = (string)$xml->EnvelopeStatus->TimeGenerated;
-	
-            //// Store the file. Create directories as needed
-            //// Some systems might still not like files or directories to start with numbers.
-            //// So we prefix the envelope ids with E and the timestamps with T
-            //$files_dir = getcwd() . '/' . $this->xml_file_dir;
-            //if(! is_dir($files_dir)) {mkdir ($files_dir, 0755);}
-            //$envelope_dir = $files_dir . "E" . $envelope_id;
-            //if(! is_dir($envelope_dir)) {mkdir ($envelope_dir, 0755);}
-
-            //$filename = $envelope_dir . "/T" . 
-            //    str_replace (':' , '_' , $time_generated) . ".xml"; // substitute _ for : for windows-land
-            //$ok = file_put_contents ($filename, $data);
-	
-            //if ($ok === false) {
-            //    // Couldn't write the file! Alert the humans!
-            //    error_log ("!!!!!! PROBLEM DocuSign Webhook: Couldn't store $filename !");
-            //    exit (1);
-            //}
-            //// log the event
-            //error_log ("DocuSign Webhook: created $filename");
-		
-            //if ((string)$xml->EnvelopeStatus->Status === "Completed") {
-            //    // Loop through the DocumentPDFs element, storing each document.
-            //    foreach ($xml->DocumentPDFs->DocumentPDF as $pdf) {
-            //        $filename = $this->doc_prefix . (string)$pdf->DocumentID . '.pdf';
-            //        $full_filename = $envelope_dir . "/" . $filename;
-            //        file_put_contents($full_filename, base64_decode ( (string)$pdf->PDFBytes ));
-            //    }
-            //}
-
-            return Content("");
-	    }
 
         public ActionResult SendSignatureRequest()
         {
@@ -126,9 +58,7 @@ namespace Webhook.Controllers
             string ds_signer1_email = make_temp_email();
             string ds_cc1_name = get_fake_name();
             string ds_cc1_email = make_temp_email();
-            string webhook_url = Request.Url.GetLeftPart(UriPartial.Authority) + "/webhook";
-
-            string accountId = Login();
+            string webhook_url = "http://requestb.in/12y7ef41";//Request.Url.GetLeftPart(UriPartial.Authority) + "/webhook";
 
             if (accountId == null) {
                 return Content("[\"ok\" => false, \"html\" => \"<h3>Problem</h3><p>Couldn't login to DocuSign: \"]");
@@ -274,14 +204,14 @@ namespace Webhook.Controllers
 		    envelope_definition.EventNotification = event_notification;
 		    envelope_definition.Status= "sent";
 
-            string username = Environment.GetEnvironmentVariable("docusignApiUsername") ?? Properties.Settings.Default.docusignApiUsername;
-            string password = Environment.GetEnvironmentVariable("docusignApiPassword") ?? Properties.Settings.Default.docusignApiPassword;
-            string integratorKey = Environment.GetEnvironmentVariable("docusignApiIntegratorKey") ?? Properties.Settings.Default.docusignApiIntegratorKey;
+            //string username = Environment.GetEnvironmentVariable("docusignApiUsername") ?? Properties.Settings.Default.docusignApiUsername;
+            //string password = Environment.GetEnvironmentVariable("docusignApiPassword") ?? Properties.Settings.Default.docusignApiPassword;
+            //string integratorKey = Environment.GetEnvironmentVariable("docusignApiIntegratorKey") ?? Properties.Settings.Default.docusignApiIntegratorKey;
 
-            string authHeader = "{\"Username\":\"" + username + "\", \"Password\":\"" + password + "\", \"IntegratorKey\":\"" + integratorKey + "\"}";
+            //string authHeader = "{\"Username\":\"" + username + "\", \"Password\":\"" + password + "\", \"IntegratorKey\":\"" + integratorKey + "\"}";
 
-            Configuration configuration = new Configuration(new ApiClient("https://demo.docusign.net/restapi"));
-            configuration.AddDefaultHeader("X-DocuSign-Authentication", authHeader);
+            //Configuration configuration = new Configuration(new ApiClient("https://demo.docusign.net/restapi"));
+            //configuration.AddDefaultHeader("X-DocuSign-Authentication", authHeader);
 
 		    EnvelopesApi envelopesApi = new EnvelopesApi(configuration);
 
@@ -297,7 +227,7 @@ namespace Webhook.Controllers
 			    "<p>Envelope ID: " + envelope_id + "</p>" +
 			    "<h2>Next steps</h2>" +
 			    "<h3>1. Open the Webhook Event Viewer</h3>" +
-			    "<p><a href='" + Request.Url.GetLeftPart(UriPartial.Authority) + "?op=status&envelope_id=" + envelope_id + "'" +
+                "<p><a href='" + Request.Url.GetLeftPart(UriPartial.Authority) + "/Webhook010/status?envelope_id=" + envelope_id + "'" +
 				    "  class='btn btn-primary' role='button' target='_blank' style='margin-right:1.5em;'>" +
 				    "View Events</a> (A new tab/window will be used.)</p>" +
 			    "<h3>2. Respond to the Signature Request</h3>";
@@ -318,17 +248,15 @@ namespace Webhook.Controllers
             return Content(html);
         }
 
-        private string Login()
+        public ActionResult StatusUpdate()
         {
-            string username = Environment.GetEnvironmentVariable("docusignApiUsername") ?? Properties.Settings.Default.docusignApiUsername;
-            string password = Environment.GetEnvironmentVariable("docusignApiPassword") ?? Properties.Settings.Default.docusignApiPassword;
-            string integratorKey = Environment.GetEnvironmentVariable("docusignApiIntegratorKey") ?? Properties.Settings.Default.docusignApiIntegratorKey;
 
-            string authHeader = "{\"Username\":\"" + username + "\", \"Password\":\"" + password + "\", \"IntegratorKey\":\"" + integratorKey + "\"}";
 
-            Configuration configuration = new Configuration(new ApiClient("https://demo.docusign.net/restapi"));
-            configuration.AddDefaultHeader("X-DocuSign-Authentication", authHeader);
+            return Content("");
+        }
 
+        private string GetAccountId()
+        {
             // the authentication api uses the apiClient (and X-DocuSign-Authentication header) that are set in Configuration object
             AuthenticationApi authApi = new AuthenticationApi(configuration);
             LoginInformation loginInfo = authApi.Login();

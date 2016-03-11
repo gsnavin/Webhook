@@ -11,7 +11,7 @@
 </p>
 <script language="javascript">
     function SendSignatureRequest() {
-        $.get("/_010Webhook/SendSignatureRequest", function (data) {
+        $.get("/Webhook010/SendSignatureRequest", function (data) {
             $("p").html(data);
         });
     }

@@ -26,22 +26,21 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("DocuSign Webhook Recipe", "Index", "_010Webhook", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("DocuSign Webhook Recipe", "Index", "Webhook010", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "_010Webhook")</li>
-                    <li>@Html.ActionLink("Send Signature Request", "SendSignRequest", "_010Webhook")</li>
+                    <li>@Html.ActionLink("Home", "Index", "Webhook010")</li>
+                    <li>@Html.ActionLink("Send Signature Request", "SendSignRequest", "Webhook010")</li>
                 </ul>
             </div>
         </div>
     </div>
-    <div class="container body-content">
-        @RenderBody()
-    </div>
-
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
+    <div class="container body-content">
+        @RenderBody()
+    </div>
 </body>
 </html>

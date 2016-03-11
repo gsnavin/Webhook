@@ -40,4 +40,9 @@
 \\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\RestSharp.dll
 \\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\DocuSign.eSign.pdb
 \\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\RestSharp.xml
-\\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\obj\Debug\Webhook.csprojResolveAssemblyReference.cache
+\\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\System.Net.Http.Formatting.dll
+\\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\System.Web.Http.dll
+\\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\System.Web.Http.WebHost.dll
+\\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\System.Net.Http.Formatting.xml
+\\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\System.Web.Http.xml
+\\psf\Home\Documents\Visual Studio 2013\Projects\Webhook\Webhook\bin\System.Web.Http.WebHost.xml
