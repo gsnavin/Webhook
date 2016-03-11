@@ -19,7 +19,9 @@ namespace Webhook.Controllers
             XmlNodeList nodes = doc.DocumentElement.SelectNodes("/DocuSignEnvelopeInformation/EnvelopeStatus");
             string envelopeId = nodes[0].SelectSingleNode("EnvelopeID").InnerText;
 
-            System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "_" + Guid.NewGuid() + ".xml"), xmlinfo);
+            //System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "_" + Guid.NewGuid() + ".xml"), xmlinfo);
+            var filepath = System.IO.Path.GetTempFileName();
+            System.IO.File.WriteAllText(filepath + "_" + envelopeId + ".xml", xmlinfo);
         }
     }
 }
