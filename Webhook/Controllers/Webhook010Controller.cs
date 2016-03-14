@@ -302,7 +302,7 @@ namespace Webhook.Controllers
                         {"signer_status",signer_status},
                         {"cc_name",cc_name},
                         {"cc_status",cc_status},
-                        {"xml_file_path",file.FullName}
+                        {"xml_file_path", Request.Url.GetLeftPart(UriPartial.Authority) + "/Documents/" + file.Name}
                     };
                     json.Add(item);
                 }

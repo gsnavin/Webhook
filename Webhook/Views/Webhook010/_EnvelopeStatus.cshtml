@@ -4,7 +4,7 @@
     <ul id="toc" class="list-unstyled">
         @foreach (Dictionary<string, string> item in Model)
         {
-            <li class="toc_item" style="opacity: 1;" onclick="show_details('@item["envelope_id"]')">
+            <li class="toc_item" style="opacity: 1;" onclick="show_details('@item["envelope_id"]_@item["envelope_status"]')">
                 <h4 class="newdata">Envelope: @item["envelope_status"]</h4>
                 <p>
                     Signer: @item["signer_name"]<br>
@@ -22,7 +22,7 @@
 <div id="right_column" class="col-md-9">
     @foreach (Dictionary<string, string> item in Model)
     {
-    <div id="xml_info" name="@item["envelope_id"]">
+    <div id="xml_info" name="@item["envelope_id"]_@item["envelope_status"]" style="display: none">
         <h3>XML Notification Content</h3>
         <h5 class="newdata">Envelope status: @item["envelope_status"]</h5>
         <p class="margintop">Recipients</p>
@@ -33,6 +33,15 @@
         <h5><a target="_blank" href="@item["xml_file_path"]">Download the XML file</a></h5>
     </div>
     <div id="editor">@File.ReadAllText(item["xml_file_path"])</div>
-    <p class="margintop">&nbsp;</p>
     }
 </div>
+
+<script>
+    document.onload(function () {
+        $("div#right_column").children().hide();
+    });
+
+    function show_details(envelope_id) {
+        $("div[name=" + envelope_id + "]").show();
+    }
+</script>
