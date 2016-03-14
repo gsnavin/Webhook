@@ -302,7 +302,8 @@ namespace Webhook.Controllers
                         {"signer_status",signer_status},
                         {"cc_name",cc_name},
                         {"cc_status",cc_status},
-                        {"xml_file_path", Request.Url.GetLeftPart(UriPartial.Authority) + "/Documents/" + file.Name}
+                        {"xml_file_path", file.FullName}
+                        {"xml_file_url", Request.Url.GetLeftPart(UriPartial.Authority) + "/Documents/" + file.Name}
                     };
                     json.Add(item);
                 }
@@ -333,7 +334,7 @@ namespace Webhook.Controllers
         private string get_temp_email_access(string email) {
 		    // just create something unique to use with maildrop.cc
 		    // Read the email at http://maildrop.cc/inbox/<mailbox_name>
-		    string url = "https://mailinator.com/inbox.jsp?to=";
+		    string url = "https://mailinator.com/inbox2.jsp?to=";
 		    string[] parts = email.Split('@');
 		    if (parts[1] != "mailinator.com") {
 			    return null;

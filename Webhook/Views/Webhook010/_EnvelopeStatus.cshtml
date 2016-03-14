@@ -30,7 +30,7 @@
             <li>Signer: @item["signer_name"]<span class="newdata">Status: @item["signer_status"]</span></li>
             <li>CarbonCopy: @item["cc_name"]<span class="newdata">Status: @item["cc_status"]</span></li>
         </ul>
-        <h5><a target="_blank" href="@item["xml_file_path"]">Download the XML file</a></h5>
+        <h5><a target="_blank" href="@item["xml_file_url"]">Download the XML file</a></h5>
     </div>
     <div id="editor">@File.ReadAllText(item["xml_file_path"])</div>
     }
