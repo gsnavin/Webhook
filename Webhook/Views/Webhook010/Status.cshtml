@@ -8,18 +8,16 @@
 </div>
 <div class="row fill">
     <div class="wrapper" id="status_container">
-        @*<div id="status_left" class="col-md-3">
-            <p id="working">Working</p>
+        <div id="status_left" class="col-md-3">
             <ul id="toc" class="list-unstyled"></ul>
             <ul class="margintop"><li>Click on an entry to view it</li><li>Italics indicate a change</li></ul>
         </div>
         <div id="right_column" class="col-md-9">
             <div id="xml_info">
-                <div id="countdown"><h2>Waiting for first results… <span id="counter"></span></h2></div>
+            <div id="countdown"><h2>Waiting for first results… <span id="counter"></span></h2></div>
             </div>
             <div id="editor"></div>
-            <p class="margintop">&nbsp;</p>
-        </div>*@
+        </div>
     </div>
 </div>
 <script language="javascript">
@@ -34,7 +32,6 @@
             data: { envelopeid: "@ViewBag.Envelope.EnvelopeId" }
         })
         .done(function (msg) {
-            //document.getElementById("status_container").innerHTML(msg);
             $('#status_container').html(msg);
         });
     }

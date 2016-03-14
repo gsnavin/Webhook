@@ -1,6 +1,5 @@
 ﻿@model List<Dictionary<string, string>>
 <div id="status_left" class="col-md-3">
-    @*<p id="working">Working</p>*@
     <ul id="toc" class="list-unstyled">
         @foreach (Dictionary<string, string> item in Model)
         {
@@ -22,26 +21,29 @@
 <div id="right_column" class="col-md-9">
     @foreach (Dictionary<string, string> item in Model)
     {
-    <div id="xml_info" name="@item["envelope_id"]_@item["envelope_status"]" style="display: none">
-        <h3>XML Notification Content</h3>
-        <h5 class="newdata">Envelope status: @item["envelope_status"]</h5>
-        <p class="margintop">Recipients</p>
-        <ul>
-            <li>Signer: @item["signer_name"]<span class="newdata">Status: @item["signer_status"]</span></li>
-            <li>CarbonCopy: @item["cc_name"]<span class="newdata">Status: @item["cc_status"]</span></li>
-        </ul>
-        <h5><a target="_blank" href="@item["xml_file_url"]">Download the XML file</a></h5>
-    </div>
-    <div id="editor">@File.ReadAllText(item["xml_file_path"])</div>
+        <div id="@item["envelope_id"]_@item["envelope_status"]" style="display: none">
+            <div>
+                <h3>XML Notification Content</h3>
+                <h5 class="newdata">Envelope status: @item["envelope_status"]</h5>
+                <p class="margintop">Recipients</p>
+                <ul>
+                    <li>Signer: @item["signer_name"]<span class="newdata">Status: @item["signer_status"]</span></li>
+                    <li>CarbonCopy: @item["cc_name"]<span class="newdata">Status: @item["cc_status"]</span></li>
+                </ul>
+                <h5><a target="_blank" href="@item["xml_file_url"]">Download the XML file</a></h5>
+            </div>
+            <div id="editor">@File.ReadAllText(item["xml_file_path"])</div>
+        </div>
     }
 </div>
 
 <script>
-    document.onload(function () {
+    $(document).ready(function () {
         $("div#right_column").children().hide();
+        show_details('@Model[0]["envelope_id"]_@Model[0]["envelope_status"]');
     });
 
     function show_details(envelope_id) {
-        $("div[name=" + envelope_id + "]").show();
+        $("div#" + envelope_id + "]").show();
     }
 </script>
