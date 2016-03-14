@@ -334,7 +334,7 @@ namespace Webhook.Controllers
         private string get_temp_email_access(string email) {
 		    // just create something unique to use with maildrop.cc
 		    // Read the email at http://maildrop.cc/inbox/<mailbox_name>
-		    string url = "https://mailinator.com/inbox2.jsp?to=";
+            string url = "https://mailinator.com/inbox2.jsp?public_to=";
 		    string[] parts = email.Split('@');
 		    if (parts[1] != "mailinator.com") {
 			    return null;
