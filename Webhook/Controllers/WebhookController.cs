@@ -16,19 +16,16 @@ namespace Webhook.Controllers
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(request.Content.ReadAsStreamAsync().Result);
-            XmlNodeList xnList = doc.SelectNodes("/DocuSignEnvelopeInformation/EnvelopeStatus");
-            if (xnList.Count > 0)
+
+            var mgr = new XmlNamespaceManager(doc.NameTable);
+            mgr.AddNamespace("a", "http://www.docusign.net/API/3.0");
+
+            XmlNode envelopeStatus = doc.SelectSingleNode("//a:EnvelopeStatus", mgr);
+            XmlNode envelopeId = envelopeStatus.SelectSingleNode("//a:EnvelopeID", mgr);
+            XmlNode status = envelopeStatus.SelectSingleNode("//a:Status", mgr);
+            if(envelopeId != null)
             {
-                foreach (XmlNode xn in xnList)
-                {
-                    string envelopeId = xn["EnvelopeId"].InnerText;
-                    string status = xn["Status"].InnerText;
-                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "_" + status + ".xml"), doc.OuterXml);
-                }
-            }
-            else
-            {
-                System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + Guid.NewGuid() + ".xml"), doc.OuterXml);
+                System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId.InnerText + "_" + status.InnerText + "_" + Guid.NewGuid() + ".xml"), doc.OuterXml);
             }
         }
     }

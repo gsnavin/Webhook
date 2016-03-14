@@ -9,7 +9,9 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace Webhook.Controllers
 {
@@ -248,11 +250,66 @@ namespace Webhook.Controllers
             return Content(html);
         }
 
-        public ActionResult StatusUpdate()
+        public ActionResult StatusUpdate(string envelopeid)
         {
+            List<Dictionary<string, string>> json = new List<Dictionary<string, string>>();
 
+            DirectoryInfo taskDirectory = new DirectoryInfo(Server.MapPath("~/Documents/"));
+            FileInfo[] taskFiles = taskDirectory.GetFiles(envelopeid + "*.xml");
+            if (taskFiles.Length > 0)
+            {
+                foreach (FileInfo file in taskFiles)
+                {
+                    XmlDocument xml = new XmlDocument();
+                    xml.Load(file.FullName);
 
-            return Content("");
+                    var mgr = new XmlNamespaceManager(xml.NameTable);
+                    mgr.AddNamespace("a", "http://www.docusign.net/API/3.0");
+
+                    XmlNode envelopeStatus = xml.SelectSingleNode("//a:EnvelopeStatus", mgr);
+
+                    string envelope_id = envelopeStatus.SelectSingleNode("//a:EnvelopeID", mgr).InnerText;
+                    string envelope_status = envelopeStatus.SelectSingleNode("//a:Status", mgr).InnerText;
+
+                    string signer_name = "";
+                    string signer_status = "";
+                    string cc_name = "";
+                    string cc_status = "";
+
+                    XmlNodeList recipientStatuses = envelopeStatus.SelectNodes("//a:RecipientStatuses", mgr);
+                    if (recipientStatuses != null && recipientStatuses.Count > 0)
+                    {
+                        foreach (XmlNode recipientStatus in recipientStatuses)
+                        {
+                            switch (recipientStatus.SelectSingleNode("//a:Type", mgr).InnerText)
+                            {
+                                case "Signer":
+                                    signer_name = recipientStatus.SelectSingleNode("//a:UserName", mgr).InnerText;
+                                    signer_status = recipientStatus.SelectSingleNode("//a:Status", mgr).InnerText;
+                                    break;
+                                case "CarbonCopy":
+                                    cc_name = envelopeStatus.SelectSingleNode("//a:UserName", mgr).InnerText;
+                                    cc_status = envelopeStatus.SelectSingleNode("//a:Status", mgr).InnerText;
+                                    break;
+                            }
+                        }
+                    }
+
+                    var item = new Dictionary<string, string> {
+                        { "envelope_id", envelope_id},
+                        {"envelope_status", envelope_status},
+                        {"signer_name", signer_name},
+                        {"signer_status",signer_status},
+                        {"cc_name",cc_name},
+                        {"cc_status",cc_status},
+                        {"xml_file_path",file.FullName}
+                    };
+                    json.Add(item);
+                }
+            }
+
+            return PartialView("_EnvelopeStatus", json);
+            //return RenderViewToString("EnvelopeStatus", json, ControllerContext);
         }
 
         private string GetAccountId()

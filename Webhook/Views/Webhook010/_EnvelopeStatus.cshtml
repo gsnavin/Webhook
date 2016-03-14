@@ -1,0 +1,38 @@
+﻿@model List<Dictionary<string, string>>
+<div id="status_left" class="col-md-3">
+    @*<p id="working">Working</p>*@
+    <ul id="toc" class="list-unstyled">
+        @foreach (Dictionary<string, string> item in Model)
+        {
+            <li class="toc_item" style="opacity: 1;" onclick="show_details('@item["envelope_id"]')">
+                <h4 class="newdata">Envelope: @item["envelope_status"]</h4>
+                <p>
+                    Signer: @item["signer_name"]<br>
+                    <span class="newdata">Status: @item["signer_status"]</span>
+                </p>
+                <p>
+                    CarbonCopy: @item["cc_name"]<br>
+                    <span class="newdata">Status: @item["cc_status"]</span>
+                </p>
+            </li>
+        }
+    </ul>
+    <ul class="margintop"><li>Click on an entry to view it</li><li>Italics indicate a change</li></ul>
+</div>
+<div id="right_column" class="col-md-9">
+    @foreach (Dictionary<string, string> item in Model)
+    {
+    <div id="xml_info" name="@item["envelope_id"]">
+        <h3>XML Notification Content</h3>
+        <h5 class="newdata">Envelope status: @item["envelope_status"]</h5>
+        <p class="margintop">Recipients</p>
+        <ul>
+            <li>Signer: @item["signer_name"]<span class="newdata">Status: @item["signer_status"]</span></li>
+            <li>CarbonCopy: @item["cc_name"]<span class="newdata">Status: @item["cc_status"]</span></li>
+        </ul>
+        <h5><a target="_blank" href="@item["xml_file_path"]">Download the XML file</a></h5>
+    </div>
+    <div id="editor">@File.ReadAllText(item["xml_file_path"])</div>
+    <p class="margintop">&nbsp;</p>
+    }
+</div>
