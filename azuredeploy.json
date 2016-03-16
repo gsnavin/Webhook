@@ -14,20 +14,27 @@
   },
   "resources": [
     {
-      "appSettings": [
+      "resources": [
         {
-          "name": "docusignDeveloperEmail",
-          "value": "[parameters('docusignDeveloperEmail')]"
-        },
-        {
-          "name": "docusignPassword",
-          "type": "securestring",
-          "value": "[parameters('docusignPassword')]"
-        },
-        {
-          "name": "docusignIntegratorKey",
-          "type": "securestring",
-          "value": "[parameters('docusignIntegratorKey')]"
+          "apiVersion": "2014-04-01",
+          "type": "config",
+          "name": "web",
+          "properties": {
+            "appSettings": [
+              {
+                "name": "docusignDeveloperEmail",
+                "value": "[parameters('docusignDeveloperEmail')]"
+              },
+              {
+                "name": "docusignPassword",
+                "value": "[parameters('docusignPassword')]"
+              },
+              {
+                "name": "docusignIntegratorKey",
+                "value": "[parameters('docusignIntegratorKey')]"
+              }
+            ]
+          }
         }
       ]
     }
