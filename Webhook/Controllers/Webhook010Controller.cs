@@ -243,7 +243,7 @@ namespace Webhook.Controllers
         {
             List<Dictionary<string, string>> json = new List<Dictionary<string, string>>();
 
-            DirectoryInfo taskDirectory = new DirectoryInfo(Server.MapPath("~/Documents/"));
+            DirectoryInfo taskDirectory = new DirectoryInfo(Server.MapPath("~/Documents/" + envelopeid + "/"));
             FileInfo[] taskFiles = taskDirectory.GetFiles(envelopeid + "*.xml");
             if (taskFiles.Length > 0)
             {
@@ -292,7 +292,7 @@ namespace Webhook.Controllers
                         {"cc_name",cc_name},
                         {"cc_status",cc_status},
                         {"xml_file_path", file.FullName},
-                        {"xml_file_url", Request.Url.GetLeftPart(UriPartial.Authority) + "/Documents/" + file.Name}
+                        {"xml_file_url", Request.Url.GetLeftPart(UriPartial.Authority) + "/Documents/"+ envelope_id + "/" + file.Name}
                     };
                     json.Add(item);
                 }
