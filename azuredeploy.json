@@ -1,17 +1,39 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "siteName": {
       "type": "string"
     },
+    "hostingPlanName": {
+      "type": "string"
+    },
     "siteLocation": {
       "type": "string"
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "Free",
+        "Shared",
+        "Basic",
+        "Standard"
+      ],
+      "defaultValue": "Free"
+    },
+    "workerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "0"
     },
     "docusignDeveloperEmail": {
       "type": "string"
     },
-    "docusignDeveloperPassword": {
+    "docusignPassword": {
       "type": "securestring"
     },
     "docusignIntegratorKey": {
@@ -27,11 +49,30 @@
   "resources": [
     {
       "apiVersion": "2014-06-01",
+      "name": "[parameters('hostingPlanName')]",
+      "type": "Microsoft.Web/serverFarms",
+      "location": "[parameters('siteLocation')]",
+      "properties": {
+        "name": "[parameters('hostingPlanName')]",
+        "sku": "[parameters('sku')]",
+        "workerSize": "[parameters('workerSize')]",
+        "numberOfWorkers": 1
+      }
+    },
+    {
+      "apiVersion": "2014-06-01",
       "name": "[parameters('siteName')]",
       "type": "Microsoft.Web/Sites",
       "location": "[parameters('siteLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty"
+      },
       "properties": {
-        "name": "[parameters('siteName')]"
+        "name": "[parameters('siteName')]",
+        "serverFarm": "[parameters('hostingPlanName')]"
       },
       "resources": [
         {
