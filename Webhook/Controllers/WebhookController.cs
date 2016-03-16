@@ -37,11 +37,8 @@ namespace Webhook.Controllers
             XmlNode status = envelopeStatus.SelectSingleNode("//a:Status", mgr);
             if(envelopeId != null)
             {
-                string folder = HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId.InnerText);
-                if (!System.IO.Directory.Exists(folder))
-                    System.IO.Directory.CreateDirectory(folder);
-
-                System.IO.File.WriteAllText((folder + "/" + envelopeId.InnerText + "_" + status.InnerText + "_" + Guid.NewGuid() + ".xml"), doc.OuterXml);
+                System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" +
+                    envelopeId.InnerText + "_" + status.InnerText + "_" + Guid.NewGuid() + ".xml"), doc.OuterXml);
             }
 
             if (status.InnerText == "Completed") {
@@ -53,7 +50,7 @@ namespace Webhook.Controllers
                     string documentId =pdf.SelectSingleNode("//a:DocumentID").InnerText;
                     string byteStr =pdf.SelectSingleNode("//a:PDFBytes").InnerText;
 
-                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "/PDFs/" + documentName), byteStr);
+                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents" + envelopeId + "_" + documentId + "_" + documentName), byteStr);
                 }
             }
         }
