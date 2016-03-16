@@ -2,6 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "siteName": {
+      "type": "string"
+    },
     "docusignDeveloperEmail": {
       "type": "string"
     },
@@ -10,15 +13,30 @@
     },
     "docusignIntegratorKey": {
       "type": "securestring"
+    },
+    "repoUrl": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string"
     }
   },
   "resources": [
     {
+      "apiVersion": "2014-06-01",
+      "name": "[parameters('siteName')]",
+      "type": "Microsoft.Web/Sites",
+      "properties": {
+        "name": "[parameters('siteName')]"
+      },
       "resources": [
         {
           "apiVersion": "2014-04-01",
           "type": "config",
           "name": "web",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+          ],
           "properties": {
             "appSettings": [
               {
@@ -34,6 +52,20 @@
                 "value": "[parameters('docusignIntegratorKey')]"
               }
             ]
+          }
+        },
+        {
+          "apiVersion": "2014-04-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
+            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
+          ],
+          "properties": {
+            "RepoUrl": "[parameters('repoUrl')]",
+            "branch": "[parameters('branch')]",
+            "IsManualIntegration": true
           }
         }
       ]
