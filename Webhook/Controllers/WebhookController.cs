@@ -26,31 +26,32 @@ namespace Webhook.Controllers
         // if need be.
         public void Post(HttpRequestMessage request)
         {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(request.Content.ReadAsStreamAsync().Result);
+            XmlDocument xmldoc = new XmlDocument();
+            xmldoc.Load(request.Content.ReadAsStreamAsync().Result);
 
-            var mgr = new XmlNamespaceManager(doc.NameTable);
+            var mgr = new XmlNamespaceManager(xmldoc.NameTable);
             mgr.AddNamespace("a", "http://www.docusign.net/API/3.0");
 
-            XmlNode envelopeStatus = doc.SelectSingleNode("//a:EnvelopeStatus", mgr);
+            XmlNode envelopeStatus = xmldoc.SelectSingleNode("//a:EnvelopeStatus", mgr);
             XmlNode envelopeId = envelopeStatus.SelectSingleNode("//a:EnvelopeID", mgr);
             XmlNode status = envelopeStatus.SelectSingleNode("//a:Status", mgr);
             if(envelopeId != null)
             {
                 System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" +
-                    envelopeId.InnerText + "_" + status.InnerText + "_" + Guid.NewGuid() + ".xml"), doc.OuterXml);
+                    envelopeId.InnerText + "_" + status.InnerText + "_" + Guid.NewGuid() + ".xml"), xmldoc.OuterXml);
             }
 
             if (status.InnerText == "Completed") {
                 // Loop through the DocumentPDFs element, storing each document.
 
-                XmlNodeList pdfs = doc.SelectNodes("//a:DocumentPDFs", mgr);
-                foreach (XmlNode pdf in pdfs) {
-                    string documentName =pdf.SelectSingleNode("//a:Name").InnerText;
-                    string documentId =pdf.SelectSingleNode("//a:DocumentID").InnerText;
-                    string byteStr =pdf.SelectSingleNode("//a:PDFBytes").InnerText;
+                XmlNode docs = xmldoc.SelectSingleNode("//a:DocumentPDFs", mgr);
+                foreach (XmlNode doc in docs.ChildNodes)
+                {
+                    string documentName = doc.ChildNodes[0].InnerText; // pdf.SelectSingleNode("//a:Name", mgr).InnerText;
+                    string documentId = doc.ChildNodes[2].InnerText; // pdf.SelectSingleNode("//a:DocumentID", mgr).InnerText;
+                    string byteStr = doc.ChildNodes[1].InnerText; // pdf.SelectSingleNode("//a:PDFBytes", mgr).InnerText;
 
-                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "_" + documentId + "_" + documentName), byteStr);
+                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId.InnerText + "_" + documentId + "_" + documentName), byteStr);
                 }
             }
         }

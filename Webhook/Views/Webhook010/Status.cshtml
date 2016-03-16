@@ -32,7 +32,9 @@
             data: { envelopeid: "@ViewBag.Envelope.EnvelopeId" }
         })
         .done(function (msg) {
-            $('#status_container').html(msg);
+            if (msg != null && msg != '') {
+                $('#status_container').html(msg);
+            }
         });
     }
 </script>
