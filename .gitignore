@@ -3,3 +3,4 @@ Webhook/bin
 Webhook/obj
 Webhook/Documents/*.xml
 Webhook/Webhook.csproj.user
+Webhook/Documents/*/
