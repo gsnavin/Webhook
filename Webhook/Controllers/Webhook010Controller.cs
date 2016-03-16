@@ -66,8 +66,6 @@ namespace Webhook.Controllers
                 return Content("[\"ok\" => false, \"html\" => \"<h3>Problem</h3><p>Couldn't login to DocuSign: \"]");
             }
 
-
-		    // *** This snippet is from file 010.webhook_lib.php ***
 		    // The envelope request includes a signer-recipient and their tabs object,
 		    // and an eventNotification object which sets the parameters for
 		    // webhook notifications to us from the DocuSign platform
@@ -130,7 +128,7 @@ namespace Webhook.Controllers
 		    document.Name = "NDA.pdf";
 
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Documents\NDA.pdf");
-            Byte[] bytes = System.IO.File.ReadAllBytes(Server.MapPath("~/Documents/NDA.pdf").Replace("_", ""));
+            Byte[] bytes = System.IO.File.ReadAllBytes(Server.MapPath("~/Documents/NDA.pdf"));
 		    document.DocumentBase64 = Convert.ToBase64String(bytes);
 
 		    SignHere sign_here_tab = new SignHere();
@@ -205,15 +203,6 @@ namespace Webhook.Controllers
 		    envelope_definition.Recipients = recipients;
 		    envelope_definition.EventNotification = event_notification;
 		    envelope_definition.Status= "sent";
-
-            //string username = Environment.GetEnvironmentVariable("docusignApiUsername") ?? Properties.Settings.Default.docusignApiUsername;
-            //string password = Environment.GetEnvironmentVariable("docusignApiPassword") ?? Properties.Settings.Default.docusignApiPassword;
-            //string integratorKey = Environment.GetEnvironmentVariable("docusignApiIntegratorKey") ?? Properties.Settings.Default.docusignApiIntegratorKey;
-
-            //string authHeader = "{\"Username\":\"" + username + "\", \"Password\":\"" + password + "\", \"IntegratorKey\":\"" + integratorKey + "\"}";
-
-            //Configuration configuration = new Configuration(new ApiClient("https://demo.docusign.net/restapi"));
-            //configuration.AddDefaultHeader("X-DocuSign-Authentication", authHeader);
 
 		    EnvelopesApi envelopesApi = new EnvelopesApi(configuration);
 

@@ -11,7 +11,19 @@ namespace Webhook.Controllers
 {
     public class WebhookController : ApiController
     {
-        // POST api/<controller>
+        // Process the incoming webhook data. See the DocuSign Connect guide
+        // for more information
+        //
+        // Strategy: examine the data to pull out the envelope_id and time_generated fields.
+        // Then store the entire xml on our local file system using those fields.
+        //
+        // If the envelope status=="Completed" then store the files as doc1.pdf, doc2.pdf, etc
+        //
+        // This function could also enter the data into a dbms, add it to a queue, etc.
+        // Note that the total processing time of this function must be less than
+        // 100 seconds to ensure that DocuSign's request to your app doesn't time out.
+        // Tip: aim for no more than a couple of seconds! Use a separate queuing service
+        // if need be.
         public void Post(HttpRequestMessage request)
         {
             XmlDocument doc = new XmlDocument();
@@ -25,7 +37,21 @@ namespace Webhook.Controllers
             XmlNode status = envelopeStatus.SelectSingleNode("//a:Status", mgr);
             if(envelopeId != null)
             {
-                System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId.InnerText + "_" + status.InnerText + "_" + Guid.NewGuid() + ".xml"), doc.OuterXml);
+                System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId.InnerText + "/" +
+                    envelopeId.InnerText + "_" + status.InnerText + "_" + Guid.NewGuid() + ".xml"), doc.OuterXml);
+            }
+
+            if (status.InnerText == "Completed") {
+                // Loop through the DocumentPDFs element, storing each document.
+
+                XmlNodeList pdfs = doc.SelectNodes("//a:DocumentPDFs", mgr);
+                foreach (XmlNode pdf in pdfs) {
+                    string documentName =pdf.SelectSingleNode("//a:Name").InnerText;
+                    string documentId =pdf.SelectSingleNode("//a:DocumentID").InnerText;
+                    string byteStr =pdf.SelectSingleNode("//a:PDFBytes").InnerText;
+
+                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "/PDFs/" + documentName), byteStr);
+                }
             }
         }
     }

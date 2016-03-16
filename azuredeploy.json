@@ -30,14 +30,14 @@
       ],
       "defaultValue": "0"
     },
-    "docusignApiUsername": {
+    "docusignDeveloperEmail": {
       "type": "string"
     },
-    "docusignApiPassword": {
-      "type": "string"
+    "docusignPassword": {
+      "type": "securestring"
     },
-    "docusignApiIntegratorKey": {
-      "type": "string"
+    "docusignIntegratorKey": {
+      "type": "securestring"
     },
     "repoUrl": {
       "type": "string"
@@ -85,16 +85,16 @@
           "properties": {
             "appSettings": [
               {
-                "name": "docusignApiUsername",
-                "value": "[parameters('docusignApiUsername')]"
+                "name": "docusignDeveloperEmail",
+                "value": "[parameters('docusignDeveloperEmail')]"
               },
               {
-                "name": "docusignApiPassword",
-                "value": "[parameters('docusignApiPassword')]"
+                "name": "docusignPassword",
+                "value": "[parameters('docusignPassword')]"
               },
               {
-                "name": "docusignApiIntegratorKey",
-                "value": "[parameters('docusignApiIntegratorKey')]"
+                "name": "docusignIntegratorKey",
+                "value": "[parameters('docusignIntegratorKey')]"
               }
             ]
           }
