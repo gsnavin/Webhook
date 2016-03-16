@@ -1,102 +1,54 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "siteName": {
-      "type": "string"
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
+      ],
+      "metadata": {
+        "description": "Storage Account type"
+      }
     },
-    "hostingPlanName": {
-      "type": "string"
-    },
-    "siteLocation": {
-      "type": "string"
-    },
-    "docusignDeveloperEmail": {
-      "type": "string"
-    },
-    "docusignPassword": {
-      "type": "securestring"
-    },
-    "docusignIntegratorKey": {
-      "type": "securestring"
-    },
-    "repoUrl": {
-      "type": "string"
-    },
-    "branch": {
-      "type": "string"
+    "dnsLabelPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS Label for the Public IP. Must be lowercase. It should match with the following regular expression: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$ or it will raise an error."
+      }
     }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'storage')]",
+    "publicIPAddressName": "[concat('myPublicIp', uniquestring(resourceGroup().id))]",
+    "publicIPAddressType": "Dynamic",
+    "apiVersion": "2015-06-15"
   },
   "resources": [
     {
-      "apiVersion": "2014-06-01",
-      "name": "[parameters('hostingPlanName')]",
-      "type": "Microsoft.Web/serverFarms",
-      "location": "[parameters('siteLocation')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[variables('location')]",
       "properties": {
-        "name": "[parameters('hostingPlanName')]",
-        "sku": "Free",
-        "workerSize": "0",
-        "numberOfWorkers": 1
+        "accountType": "[parameters('storageAccountType')]"
       }
     },
     {
-      "apiVersion": "2014-06-01",
-      "name": "[parameters('siteName')]",
-      "type": "Microsoft.Web/Sites",
-      "location": "[parameters('siteLocation')]",
-      "dependsOn": [
-        "[concat('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]"
-      ],
-      "tags": {
-        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty"
-      },
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "[variables('apiVersion')]",
+      "name": "[variables('publicIPAddressName')]",
+      "location": "[variables('location')]",
       "properties": {
-        "name": "[parameters('siteName')]",
-        "serverFarm": "[parameters('hostingPlanName')]"
-      },
-      "resources": [
-        {
-          "apiVersion": "2014-04-01",
-          "type": "config",
-          "name": "web",
-          "dependsOn": [
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
-          ],
-          "properties": {
-            "appSettings": [
-              {
-                "name": "docusignDeveloperEmail",
-                "value": "[parameters('docusignDeveloperEmail')]"
-              },
-              {
-                "name": "docusignPassword",
-                "type": "securestring",
-                "value": "[parameters('docusignPassword')]"
-              },
-              {
-                "name": "docusignIntegratorKey",
-                "type": "securestring",
-                "value": "[parameters('docusignIntegratorKey')]"
-              }
-            ]
-          }
-        },
-        {
-          "apiVersion": "2014-04-01",
-          "name": "web",
-          "type": "sourcecontrols",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
-          ],
-          "properties": {
-            "RepoUrl": "[parameters('repoUrl')]",
-            "branch": "[parameters('branch')]",
-            "IsManualIntegration": true
-          }
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
         }
-      ]
+      }
     }
   ]
 }
