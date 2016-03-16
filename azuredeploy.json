@@ -5,6 +5,9 @@
     "siteName": {
       "type": "string"
     },
+    "siteLocation": {
+      "type": "string"
+    },
     "docusignDeveloperEmail": {
       "type": "string"
     },
@@ -26,6 +29,7 @@
       "apiVersion": "2014-06-01",
       "name": "[parameters('siteName')]",
       "type": "Microsoft.Web/Sites",
+      "location": "[parameters('siteLocation')]",
       "properties": {
         "name": "[parameters('siteName')]"
       },
