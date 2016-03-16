@@ -24,9 +24,9 @@ namespace Webhook.Controllers
         public Webhook010Controller()
         {
             var appSettings = System.Configuration.ConfigurationManager.AppSettings;
-            string username = appSettings["docusignApiUsername"];
-            string password = appSettings["docusignApiPassword"];
-            string integratorKey = appSettings["docusignApiIntegratorKey"];
+            string username = appSettings["docusignDeveloperEmail"];
+            string password = appSettings["docusignPassword"];
+            string integratorKey = appSettings["docusignIntegratorKey"];
 
             string authHeader = "{\"Username\":\"" + username + "\", \"Password\":\"" + password + "\", \"IntegratorKey\":\"" + integratorKey + "\"}";
 
