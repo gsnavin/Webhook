@@ -50,7 +50,7 @@ namespace Webhook.Controllers
                     string documentId =pdf.SelectSingleNode("//a:DocumentID").InnerText;
                     string byteStr =pdf.SelectSingleNode("//a:PDFBytes").InnerText;
 
-                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents" + envelopeId + "_" + documentId + "_" + documentName), byteStr);
+                    System.IO.File.WriteAllText(HttpContext.Current.Server.MapPath("~/Documents/" + envelopeId + "_" + documentId + "_" + documentName), byteStr);
                 }
             }
         }
