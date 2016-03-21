@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -266,12 +267,12 @@ namespace Webhook.Controllers
                     string cc_name = "";
                     string cc_status = "";
 
-                    XmlNodeList recipientStatuses = envelopeStatus.SelectNodes("//a:RecipientStatuses", mgr);
+                    XmlNodeList recipientStatuses = envelopeStatus.SelectNodes("//a:RecipientStatus", mgr);
                     if (recipientStatuses != null && recipientStatuses.Count > 0)
                     {
                         foreach (XmlNode recipientStatus in recipientStatuses)
                         {
-                            switch (recipientStatus.SelectSingleNode("//a:Type", mgr).InnerText)
+                            switch (recipientStatus.FirstChild.InnerText)
                             {
                                 case "Signer":
                                     signer_name = recipientStatus.SelectSingleNode("//a:UserName", mgr).InnerText;
@@ -290,8 +291,8 @@ namespace Webhook.Controllers
                         {"envelope_status", envelope_status},
                         {"signer_name", signer_name},
                         {"signer_status",signer_status},
-                        {"cc_name",cc_name},
-                        {"cc_status",cc_status},
+                        {"cc_name", cc_name},
+                        {"cc_status", cc_status},
                         {"xml_file_path", file.FullName},
                         {"xml_file_url", Request.Url.GetLeftPart(UriPartial.Authority) + "/Documents/" + file.Name}
                     };
@@ -377,6 +378,9 @@ namespace Webhook.Controllers
             Random random = new Random();
 		    string email = random.Next(0, 25) + DateTime.Now.ToString() + ip;
             email = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(email));
+
+            Regex rgx = new Regex("[^a-zA-Z0-9]");
+            email = rgx.Replace(email, "");
 
             return email.Substring(email.Length - 25, 25) + "@mailinator.com";
 	    }
