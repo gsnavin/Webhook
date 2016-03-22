@@ -1,41 +1,16 @@
 ﻿using DocuSign.eSign.Api;
-using DocuSign.eSign.Client;
 using DocuSign.eSign.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
 using System.Xml;
-using System.Xml.Serialization;
+using Webhook.Helpers;
 
 namespace Webhook.Controllers
 {
     public class Webhook010Controller : Controller
     {
-        private string accountId;
-
-        private Configuration configuration = new Configuration(new ApiClient("https://demo.docusign.net/restapi"));
-
-        public Webhook010Controller()
-        {
-            var appSettings = System.Configuration.ConfigurationManager.AppSettings;
-            string username = appSettings["docusignDeveloperEmail"];
-            string password = appSettings["docusignPassword"];
-            string integratorKey = appSettings["docusignIntegratorKey"];
-
-            string authHeader = "{\"Username\":\"" + username + "\", \"Password\":\"" + password + "\", \"IntegratorKey\":\"" + integratorKey + "\"}";
-
-            configuration.AddDefaultHeader("X-DocuSign-Authentication", authHeader);
-
-            accountId = GetAccountId();
-        }
-
         public ActionResult Index()
         {
             ViewBag.Message = "Home";
@@ -50,21 +25,22 @@ namespace Webhook.Controllers
 
         public ActionResult Status()
         {
-            EnvelopesApi envelopesApi = new EnvelopesApi(configuration);
-            ViewBag.Envelope = envelopesApi.GetEnvelope(accountId, Request.QueryString["envelope_id"], null);
+            EnvelopesApi envelopesApi = new EnvelopesApi(WebhookLibrary.Configuration);
+            ViewBag.Envelope = envelopesApi.GetEnvelope(WebhookLibrary.AccountId, Request.QueryString["envelope_id"], null);
 
             return View();
         }
 
         public ActionResult SendSignatureRequest()
         {
-            string ds_signer1_name = get_fake_name();
-            string ds_signer1_email = make_temp_email();
-            string ds_cc1_name = get_fake_name();
-            string ds_cc1_email = make_temp_email();
+            string ds_signer1_name = WebhookLibrary.GetFakeName();
+            string ds_signer1_email = WebhookLibrary.GetFakeEmail(ds_signer1_name);
+            string ds_cc1_name = WebhookLibrary.GetFakeName();
+            string ds_cc1_email = WebhookLibrary.GetFakeEmail(ds_cc1_name);
             string webhook_url = Request.Url.GetLeftPart(UriPartial.Authority) + "/api/Webhook";
 
-            if (accountId == null) {
+            if (WebhookLibrary.AccountId == null)
+            {
                 return Content("[\"ok\" => false, \"html\" => \"<h3>Problem</h3><p>Couldn't login to DocuSign: \"]");
             }
 
@@ -206,9 +182,9 @@ namespace Webhook.Controllers
 		    envelope_definition.EventNotification = event_notification;
 		    envelope_definition.Status= "sent";
 
-		    EnvelopesApi envelopesApi = new EnvelopesApi(configuration);
+            EnvelopesApi envelopesApi = new EnvelopesApi(WebhookLibrary.Configuration);
 
-		    EnvelopeSummary envelope_summary = envelopesApi.CreateEnvelope(accountId, envelope_definition, null);
+            EnvelopeSummary envelope_summary = envelopesApi.CreateEnvelope(WebhookLibrary.AccountId, envelope_definition, null);
 		    if ( envelope_summary == null || envelope_summary.EnvelopeId == null ) {
 			    return Content("[\"ok\" => false, html => \"<h3>Problem</h3>\" \"<p>Error calling DocuSign</p>\"]");
 		    }
@@ -225,11 +201,11 @@ namespace Webhook.Controllers
 				    "View Events</a> (A new tab/window will be used.)</p>" +
 			    "<h3>2. Respond to the Signature Request</h3>";
 
-		    string email_access = get_temp_email_access(ds_signer1_email);
+		    string email_access = WebhookLibrary.GetFakeEmailAccess(ds_signer1_email);
 		    if (email_access != null) {
 			    // A temp account was used for the email
 			    html += "<p>Respond to the request via your mobile phone by using the QR code: </p>" +
-				    "<p>" + get_temp_email_access_qrcode(email_access) + "</p>" +
+                    "<p>" + WebhookLibrary.GetFakeEmailAccessQRCode(email_access) + "</p>" +
 				    "<p> or via <a target='_blank' href='" + email_access + "'>your web browser.</a></p>";
 		    } else {
 			    // A regular email account was used
@@ -303,86 +279,5 @@ namespace Webhook.Controllers
             return PartialView("_EnvelopeStatus", json);
             //return RenderViewToString("EnvelopeStatus", json, ControllerContext);
         }
-
-        private string GetAccountId()
-        {
-            // the authentication api uses the apiClient (and X-DocuSign-Authentication header) that are set in Configuration object
-            AuthenticationApi authApi = new AuthenticationApi(configuration);
-            LoginInformation loginInfo = authApi.Login();
-
-            // find the default account for this user
-            foreach (LoginAccount loginAccount in loginInfo.LoginAccounts)
-            {
-                if (loginAccount.IsDefault == "true")
-                {
-                    return loginAccount.AccountId;
-                }
-            }
-
-            return null;
-        }
-
-        private string get_temp_email_access(string email) {
-		    // just create something unique to use with maildrop.cc
-		    // Read the email at http://maildrop.cc/inbox/<mailbox_name>
-            string url = "https://mailinator.com/inbox2.jsp?public_to=";
-		    string[] parts = email.Split('@');
-		    if (parts[1] != "mailinator.com") {
-			    return null;
-		    }
-		    return url + parts[0];
-	    }
-
-        private string get_temp_email_access_qrcode(string address) {
-		    // $url = "http://open.visualead.com/?size=130&type=png&data=";
-		    string url = "https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=";
-		    url += Url.Encode(address);
-		    int size = 150;
-		    string html = "<img height='"+size+"' width='"+size+"' src='"+url+"' alt='QR Code' style='margin:10px 0 10px;' />";
-		    return html;
-	    }
-
-        private string get_fake_name() {
-		    string[] first_names = new string[] {"Verna", "Walter", "Blanche", "Gilbert", "Cody", "Kathy",
-		    "Judith", "Victoria", "Jason", "Meghan", "Flora", "Joseph", "Rafael",
-		    "Tamara", "Eddie", "Logan", "Otto", "Jamie", "Mark", "Brian", "Dolores",
-		    "Fred", "Oscar", "Jeremy", "Margart", "Jennie", "Raymond", "Pamela",
-		    "David", "Colleen", "Marjorie", "Darlene", "Ronald", "Glenda", "Morris",
-		    "Myrtis", "Amanda", "Gregory", "Ariana", "Lucinda", "Stella", "James",
-		    "Nathaniel", "Maria", "Cynthia", "Amy", "Sylvia", "Dorothy", "Kenneth",
-		    "Jackie"};
-
-		    string[] last_names = new string[] {"Francisco", "Deal", "Hyde", "Benson", "Williamson", 
-		    "Bingham", "Alderman", "Wyman", "McElroy", "Vanmeter", "Wright", "Whitaker", 
-		    "Kerr", "Shaver", "Carmona", "Gremillion", "O'Neill", "Markert", "Bell", 
-		    "King", "Cooper", "Allard", "Vigil", "Thomas", "Luna", "Williams", 
-		    "Fleming", "Byrd", "Chaisson", "McLeod", "Singleton", "Alexander", 
-		    "Harrington", "McClain", "Keels", "Jackson", "Milne", "Diaz", "Mayfield", 
-		    "Burnham", "Gardner", "Crawford", "Delgado", "Pape", "Bunyard", "Swain", 
-		    "Conaway", "Hetrick", "Lynn", "Petersen"};
-
-            Random random = new Random();
-		    string first = first_names[random.Next(0, first_names.Length - 1)];
-		    string last = last_names[random.Next(0, first_names.Length - 1)];
-		    return first + " " + last;
-	    }
-
-        private string make_temp_email() {
-	 	    // just create something unique to use with maildrop.cc
-		    // Read the email at http://maildrop.cc/inbox/<mailbox_name>	
-		    string ip = "100";
-		    if (Request.ServerVariables["REMOTE_ADDR"] != null) {
-			    ip = Request.ServerVariables["REMOTE_ADDR"];
-		    }
-
-            Random random = new Random();
-		    string email = random.Next(0, 25) + DateTime.Now.ToString() + ip;
-            email = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(email));
-
-            Regex rgx = new Regex("[^a-zA-Z0-9]");
-            email = rgx.Replace(email, "");
-
-            return email.Substring(email.Length - 25, 25) + "@mailinator.com";
-	    }
     }
 }

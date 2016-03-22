@@ -18,6 +18,8 @@ namespace Webhook
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            Webhook.Helpers.WebhookLibrary.Init();
         }
     }
 }
